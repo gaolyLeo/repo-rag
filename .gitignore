@@ -12,6 +12,10 @@ ENV/
 benchmarks/
 *.log
 
+# Generated index data
+data/
+.repo-rag/
+
 # IDE
 .vscode/
 .idea/
