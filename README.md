@@ -82,6 +82,14 @@ src/
 └── indexing/          # Embedder, vector index (sqlite-vec), searcher
 ```
 
+## Roadmap
+
+- [ ] **Incremental indexing** — only re-embed files changed since last build, instead of full rebuild
+- [ ] **More languages** — TypeScript, Go, Rust, Java (tree-sitter adapters)
+- [ ] **Watch mode** — auto-reindex on file save during active Claude Code sessions
+- [ ] **Multi-repo search** — search across multiple indexed repos at once
+- [ ] **Chunk deduplication** — skip near-identical chunks to reduce index bloat
+
 ## Privacy
 
 All processing is local. No code leaves your machine.
