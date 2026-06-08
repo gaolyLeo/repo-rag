@@ -38,7 +38,12 @@ Claude Code automatically discovers plugins placed under `~/.claude/plugins/`.
 pip install -r ~/.claude/plugins/repo-rag/requirements.txt
 ```
 
-> **Note:** `flash_attn` requires a CUDA-capable GPU and takes a few minutes to compile on first install. If you don't have a GPU, remove the `flash_attn` line from `requirements.txt` — the plugin will fall back to standard attention automatically.
+> **Note:** `flash_attn` requires CUDA (NVIDIA GPU). On **Mac (Apple Silicon)**, skip it — the plugin uses MPS automatically:
+> ```bash
+> pip install -r ~/.claude/plugins/repo-rag/requirements.txt --ignore-requires-python
+> # or just remove the flash_attn line before installing
+> ```
+> On CPU-only machines, remove `flash_attn` from `requirements.txt` before installing.
 
 ### Step 3 — Verify
 

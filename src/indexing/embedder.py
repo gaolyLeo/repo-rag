@@ -22,20 +22,29 @@ MAX_LENGTH = 512
 
 class Embedder:
     def __init__(self):
-        device = "cuda" if torch.cuda.is_available() else "cpu"
+        if torch.cuda.is_available():
+            device = "cuda"
+        elif torch.backends.mps.is_available():
+            device = "mps"
+        else:
+            device = "cpu"
         print(f"Loading {MODEL_NAME}...")
 
         self.tokenizer = get_tokenizer()
+        # flash_attention_2 is CUDA-only; fall back to eager on MPS/CPU
+        attn = "flash_attention_2" if device == "cuda" else "eager"
         self.model = AutoModel.from_pretrained(
             MODEL_NAME,
             trust_remote_code=True,
-            attn_implementation="flash_attention_2",
+            attn_implementation=attn,
         )
 
         self.model = self.model.to(device)
         if device == "cuda":
             self.model = self.model.half()
             print("  Using FP16 + Flash Attention 2")
+        elif device == "mps":
+            print("  Using MPS (Apple Silicon)")
 
         self.model.eval()
         self.device = device

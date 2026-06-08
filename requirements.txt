@@ -8,7 +8,7 @@ safetensors>=0.5.0
 
 # Inference engine
 torch==2.5.1
-flash_attn==2.8.3
+flash_attn==2.8.3  # CUDA only — skip on Mac/CPU
 einops>=0.8.0
 
 # AST parsing
