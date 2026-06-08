@@ -1,5 +1,11 @@
 # repo-rag
 
+![Claude Code Plugin](https://img.shields.io/badge/Claude%20Code-Plugin-orange?logo=anthropic)
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Local](https://img.shields.io/badge/Privacy-100%25%20Local-brightgreen)
+![GPU](https://img.shields.io/badge/GPU-FP16%20%2B%20Flash%20Attention%202-76b900?logo=nvidia)
+
 A **Claude Code plugin** that gives Claude semantic code search over your repository.
 
 When installed, Claude can call `search_code` to find implementations similar to a code snippet — across your entire codebase, fully locally, without sending code anywhere.
