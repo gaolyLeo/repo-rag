@@ -61,29 +61,31 @@ class VectorIndex:
                 f"chunks ({len(chunks)}) and embeddings ({len(embeddings)}) length mismatch"
             )
 
+        vec_rows = [
+            (struct.pack(f"{self.dim}f", *emb.tolist()),) for emb in embeddings
+        ]
         with self.conn:
-            for chunk, emb in zip(chunks, embeddings):
-                emb_bytes = struct.pack(f"{self.dim}f", *emb.tolist())
-                cursor = self.conn.execute(
-                    "INSERT INTO vec_chunks(embedding) VALUES (?)", (emb_bytes,)
+            cursor = self.conn.execute("SELECT COALESCE(MAX(rowid), 0) FROM vec_chunks")
+            next_rowid = cursor.fetchone()[0] + 1
+
+            self.conn.executemany("INSERT INTO vec_chunks(embedding) VALUES (?)", vec_rows)
+
+            meta_rows = [
+                (
+                    next_rowid + i,
+                    chunk.file, chunk.start_line, chunk.end_line,
+                    chunk.language, chunk.code, chunk.header, chunk.token_count,
                 )
-                rowid = cursor.lastrowid
-                assert rowid is not None
-                self.conn.execute(
-                    """
-                    INSERT INTO chunk_meta
-                        (rowid, file, start_line, end_line, language, code, header, token_count)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                    """,
-                    (
-                        rowid, chunk.file,
-                        chunk.start_line, chunk.end_line,
-                        chunk.language,
-                        chunk.code,
-                        chunk.header,
-                        chunk.token_count,
-                    ),
-                )
+                for i, chunk in enumerate(chunks)
+            ]
+            self.conn.executemany(
+                """
+                INSERT INTO chunk_meta
+                    (rowid, file, start_line, end_line, language, code, header, token_count)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                meta_rows,
+            )
 
     def search(self, query_emb: np.ndarray, top_k: int = 10) -> List[Chunk]:
         """Return top_k Chunks ranked by vector distance (smaller = closer).
