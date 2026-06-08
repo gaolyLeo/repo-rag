@@ -1,0 +1,25 @@
+mcp>=1.0.0
+
+# Embedding model + tokenizer
+transformers==4.49.0
+tokenizers==0.21.4
+huggingface_hub>=0.26.0
+safetensors>=0.5.0
+
+# Inference engine
+torch==2.5.1
+flash_attn==2.8.3
+einops>=0.8.0
+
+# AST parsing
+tree-sitter>=0.25.0
+tree-sitter-python>=0.25.0
+tree-sitter-c>=0.24.0
+tree-sitter-cpp>=0.23.0
+
+# Vector index
+sqlite-vec>=0.1.9
+
+# Utilities
+numpy>=1.26.0
+tqdm>=4.66.0

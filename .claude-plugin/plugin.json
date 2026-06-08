@@ -1,0 +1,10 @@
+{
+  "name": "repo-rag",
+  "version": "0.1.0",
+  "description": "Code embedding + retrieval for Claude Code. On startup, indexes the current repo with jina-code embeddings and exposes a search_code tool that finds chunks similar to a code snippet.",
+  "author": {
+    "name": "leo"
+  },
+  "license": "MIT",
+  "keywords": ["rag", "embedding", "code-search", "retrieval", "semantic-search"]
+}

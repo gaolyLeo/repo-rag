@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "repo-rag": {
+      "command": "python",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/src/server.py"]
+    }
+  }
+}
