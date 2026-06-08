@@ -18,27 +18,49 @@ This is **code-to-code retrieval**, not natural language search. You don't use i
 
 ## Installation
 
-Clone into your Claude Code plugins directory:
+### Prerequisites
+
+- [Claude Code](https://claude.ai/code) installed
+- Python 3.10+
+- GPU strongly recommended (NVIDIA, with CUDA). CPU works but embedding is slow.
+
+### Step 1 — Clone the plugin
 
 ```bash
 git clone https://github.com/gaolyLeo/repo-rag ~/.claude/plugins/repo-rag
 ```
 
-Install dependencies:
+Claude Code automatically discovers plugins placed under `~/.claude/plugins/`.
+
+### Step 2 — Install dependencies
 
 ```bash
 pip install -r ~/.claude/plugins/repo-rag/requirements.txt
 ```
 
-Claude Code will pick it up automatically via `.claude-plugin/plugin.json`.
+> **Note:** `flash_attn` requires a CUDA-capable GPU and takes a few minutes to compile on first install. If you don't have a GPU, remove the `flash_attn` line from `requirements.txt` — the plugin will fall back to standard attention automatically.
 
-## First run
+### Step 3 — Verify
 
-On startup, the plugin indexes your current project in the background using [jina-embeddings-v2-base-code](https://huggingface.co/jinaai/jina-embeddings-v2-base-code). The index is saved to `.repo-rag/index.db` and reused on subsequent starts.
+Open Claude Code in any project directory. You should see `repo-rag` listed in the active MCP servers. On first launch, Claude will say the index is building in the background — this can take up to a minute for large repos.
+
+That's it. No config files to edit, no API keys.
+
+### How Claude uses it
+
+Once installed, Claude automatically calls `search_code` when it needs to find similar code in your project. You don't invoke it manually — just ask Claude things like:
+
+- *"Is there already a retry mechanism somewhere in this codebase?"*
+- *"Find all places that handle JWT validation"*
+- *"Are there other functions that do the same thing as this one?"*
+
+Claude will generate a representative code snippet internally and use it as the search query.
+
+### Index location
+
+The index is stored at `.repo-rag/index.db` inside your project. It is reused on subsequent Claude Code sessions — no rebuild needed unless you add `.repo-rag/` to `.gitignore` (recommended, it's already there if you cloned this repo as a template).
 
 **Supported languages:** Python, C, C++
-
-**Requires:** GPU recommended (RTX 4060 indexes 30k lines in ~1.4s); CPU works but is slower.
 
 ## Performance
 
