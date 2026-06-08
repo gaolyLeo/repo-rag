@@ -1,72 +1,59 @@
-# Repo RAG
+# repo-rag
 
-**Code-to-Code semantic search for finding similar implementations, duplicate code, and cross-file patterns.**
+A **Claude Code plugin** that gives Claude semantic code search over your repository.
 
-Unlike natural language code search tools (e.g., "find authentication code"), this focuses on **code-to-code retrieval**: given a code snippet, find semantically similar code across your repository.
+When installed, Claude can call `search_code` to find implementations similar to a code snippet — across your entire codebase, fully locally, without sending code anywhere.
 
-## Key Features
+## What it does
 
-- 🔍 **Code-to-Code Search**: Find similar implementations by providing code, not descriptions
-- 🎯 **High Accuracy**: 100% for similar code, 75% for cross-file matching (validated on real repos)
-- ⚡ **Blazing Fast**: 22x faster than baseline (30k lines in 1.4s on RTX 4060)
-- 🔒 **Fully Local**: No data leaves your computer
-- 🔌 **MCP Server**: Integrates with Claude Code
+Claude Code generates a "what the code I'm looking for might look like" snippet and passes it to `search_code`. The plugin returns the most similar chunks with file paths and line numbers.
 
-## Project Structure
+This is **code-to-code retrieval**, not natural language search. You don't use it directly — Claude does.
 
+## Installation
+
+Clone into your Claude Code plugins directory:
+
+```bash
+git clone https://github.com/gaolyLeo/repo-rag ~/.claude/plugins/repo-rag
 ```
-repo-rag/
-├── src/
-│   └── repo_rag/          # Main source code (to be implemented)
-│       ├── __init__.py
-│       ├── embedding.py   # Embedding generation
-│       ├── indexing.py    # Vector indexing
-│       └── search.py      # Semantic search
-├── benchmarks/            # Evaluation and benchmarks
-│   ├── eval/              # Evaluation scripts
-│   ├── tests/             # Performance tests
-│   ├── data/              # Test data and chunks
-│   ├── results/           # Benchmark results
-│   ├── eval_report.md     # Detailed evaluation report
-│   └── SUMMARY.md         # Performance summary
-└── README.md
+
+Install dependencies:
+
+```bash
+pip install -r ~/.claude/plugins/repo-rag/requirements.txt
 ```
+
+Claude Code will pick it up automatically via `.claude-plugin/plugin.json`.
+
+## First run
+
+On startup, the plugin indexes your current project in the background using [jina-embeddings-v2-base-code](https://huggingface.co/jinaai/jina-embeddings-v2-base-code). The index is saved to `.repo-rag/index.db` and reused on subsequent starts.
+
+**Supported languages:** Python, C, C++
+
+**Requires:** GPU recommended (RTX 4060 indexes 30k lines in ~1.4s); CPU works but is slower.
 
 ## Performance
 
-**Optimized Configuration:**
-- Model: `jinaai/jina-embeddings-v2-base-code`
-- Precision: FP16
-- Batch size: 512
-- Attention: Flash Attention 2
+Benchmarked on an RTX 4060 8GB:
 
-**Speed (RTX 4060 8GB):**
-- 2185 chunks/second (22x faster than baseline)
-- 30k lines: 1.4 seconds
-- 100k lines: 46 seconds
+| Metric | Result |
+|--------|--------|
+| Speed | 2185 chunks/s (22× faster than baseline) |
+| Similar code detection | 100% |
+| Cross-file matching | 75% |
 
-**Accuracy:**
-- Similar code detection: 100%
-- Context retrieval: 75%
-- Cross-file matching: 75%
+## Project structure
 
-## Development
-
-```bash
-# Setup (uses shared ~/.venv)
-source ~/.venv/bin/activate
-
-# Run benchmarks
-cd benchmarks
-python eval/runner.py --help
+```
+src/
+├── server.py          # MCP server entry point
+├── builder.py         # Repo walker + index builder
+├── chunking/          # Tree-sitter based code chunker
+└── indexing/          # Embedder, vector index (sqlite-vec), searcher
 ```
 
-## Benchmarks
+## Privacy
 
-All evaluation code and results are in the `benchmarks/` directory:
-- `benchmarks/eval/` - Evaluation scripts
-- `benchmarks/tests/` - Performance tests
-- `benchmarks/results/` - Benchmark results
-- `benchmarks/eval_report.md` - Detailed analysis
-
-See `benchmarks/SUMMARY.md` for performance summary.
+All processing is local. No code leaves your machine.
