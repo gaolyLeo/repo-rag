@@ -69,8 +69,18 @@ class Embedder:
                 )
                 inputs = {k: v.to(self.device) for k, v in inputs.items()}
                 outputs = self.model(**inputs)
-                # Mean pooling over sequence dim, then fp16 → fp32 for index
-                embs = outputs.last_hidden_state.mean(dim=1).float().cpu().numpy()
+                # Masked mean pooling: average only over real tokens, not the
+                # padding added to equalize batch length. A plain .mean(dim=1)
+                # would average padding positions in too, so the same text
+                # yields different vectors depending on what it was batched
+                # with — breaking the index/query symmetry (queries are
+                # encoded one-at-a-time with no padding; index chunks are
+                # batched with padding).
+                hidden = outputs.last_hidden_state  # (B, T, dim)
+                mask = inputs["attention_mask"].unsqueeze(-1).to(hidden.dtype)  # (B, T, 1)
+                summed = (hidden * mask).sum(dim=1)  # (B, dim) — padding zeroed out
+                counts = mask.sum(dim=1).clamp(min=1e-9)  # (B, 1) — real token count
+                embs = (summed / counts).float().cpu().numpy()
                 # L2-normalize so sqlite-vec's L2 distance == cosine distance,
                 # giving stable [0, 2] scores comparable across queries.
                 embs /= np.maximum(np.linalg.norm(embs, axis=1, keepdims=True), 1e-12)
