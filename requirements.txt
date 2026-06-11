@@ -1,15 +1,22 @@
+# Core
 mcp>=1.0.0
 
 # Embedding model + tokenizer
+# NOTE: transformers must stay <5.0 — the jina-embeddings-v2 remote code
+# imports find_pruneable_heads_and_indices, which was removed in 5.x.
+# Pinned to 4.49.0 (verified end-to-end on Python 3.14 + torch 2.12 + MPS).
 transformers==4.49.0
 tokenizers==0.21.4
 huggingface_hub>=0.26.0
 safetensors>=0.5.0
 
 # Inference engine
-torch==2.5.1
-flash_attn==2.8.3  # CUDA only — skip on Mac/CPU
+# torch>=2.9 required for Python 3.13/3.14 wheels (2.5.x has none).
+torch>=2.9.0
 einops>=0.8.0
+# flash_attn is CUDA-only and optional — the embedder falls back to "eager"
+# attention on MPS/CPU. Install manually on an NVIDIA box if desired:
+#   pip install flash_attn==2.8.3
 
 # AST parsing
 tree-sitter>=0.25.0
