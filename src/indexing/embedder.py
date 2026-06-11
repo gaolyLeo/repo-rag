@@ -17,7 +17,7 @@ from utils.tokenizer import get_tokenizer
 
 MODEL_NAME = "jinaai/jina-embeddings-v2-base-code"
 BATCH_SIZE = 32
-MAX_LENGTH = 512
+MAX_LENGTH = 360  # Tuned for MPS: 95% of chunks fit; 512→360 cuts compute ~2x
 
 
 class Embedder:
@@ -63,7 +63,7 @@ class Embedder:
                 inputs = self.tokenizer(
                     batch,
                     return_tensors="pt",
-                    padding=True,
+                    padding="max_length",  # Fixed padding for MPS: avoids recompilation
                     truncation=True,
                     max_length=MAX_LENGTH,
                 )
