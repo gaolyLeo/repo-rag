@@ -23,7 +23,7 @@ import tempfile
 from pathlib import Path
 
 # Make `chunking`, `indexing`, `utils` importable (same as server.py's cwd=src).
-SRC = Path(__file__).parent / "src"
+SRC = Path(__file__).parent.parent / "src"
 sys.path.insert(0, str(SRC))
 
 from chunking.chunker import Chunker          # noqa: E402
